@@ -2,6 +2,8 @@ import React from "react";
 import { Work_Sans, Spline_Sans_Mono } from "next/font/google";
 import clsx from "clsx";
 import RespectMotionPreference from "@/components/RespectMotionPreference";
+import DarkLightToggle from "@/components/DarkLightToggle";
+import { cookies } from "next/headers";
 
 import { LIGHT_TOKENS, DARK_TOKENS } from "@/constants";
 
@@ -22,9 +24,10 @@ const monoFont = Spline_Sans_Mono({
   variable: "--font-family-mono",
 });
 
-function RootLayout({ children }) {
-  // TODO: Dynamic theme depending on user preference
-  const theme = "light";
+async function RootLayout({ children }) {
+  const savedTheme = (await cookies()).get("color-theme");
+  const theme = savedTheme?.value || "light";
+  const themeColors = theme === "light" ? LIGHT_TOKENS : DARK_TOKENS;
 
   return (
     <RespectMotionPreference>
@@ -32,10 +35,12 @@ function RootLayout({ children }) {
         lang="en"
         className={clsx(mainFont.variable, monoFont.variable)}
         data-color-theme={theme}
-        style={theme === "light" ? LIGHT_TOKENS : DARK_TOKENS}
+        style={themeColors}
       >
         <body>
-          <Header theme={theme} />
+          <Header>
+            <DarkLightToggle initialTheme={theme} />
+          </Header>
           <main>{children}</main>
           <Footer />
         </body>
